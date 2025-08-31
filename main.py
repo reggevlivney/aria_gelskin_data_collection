@@ -2,10 +2,12 @@ import asyncio
 import utils    
 import argparse
 import aria.sdk as aria
+from vrs_to_video import VRSToVideo
+from pathlib import Path
 
 async def main():
     await asyncio.gather(
-        utils.record_aria_video("132.69.205.31", 10, "profile0"),
+        utils.record_aria_video("132.69.205.31", 10, "profile4"),
         utils.record_sensor_video()
     )
 
@@ -16,3 +18,4 @@ if __name__ == "__main__":
 
     asyncio.run(main())
     utils.pull_recordings()
+    VRSToVideo(Path('/home/reggev/shared/aria'))

@@ -47,32 +47,18 @@ def decode_block_to_bgr(spec, block_bytes):
         return img
     raise RuntimeError("Unknown image block type; could not decode.")
 
-def main():
-    p = argparse.ArgumentParser(description="Convert a VRS image stream to a video file.")
-    p.add_argument("input_vrs", type=Path)
-    # p.add_argument("output_video", type=Path)
-    p.add_argument("--stream", help="Stream ID to use (e.g. '200-1'). If omitted, the first image stream is used.")
-    p.add_argument("--fps", type=float, default=None, help="Override frames per second.")
-    p.add_argument("--max-frames", type=int, default=None, help="Stop after N frames (debug).")
-    args = p.parse_args()
-
-    # if args.input_vrs == 'all':
-    #     paths = Path.cwd().glob('*.vrs')
-    # else:
-    #     path = [args.input_vrs];
-    if args.input_vrs.is_dir():
-        paths = [
-            p for p in args.input_vrs.iterdir()
-            if p.suffix == ".vrs" and not (p.with_suffix('.mp4').exists())
-        ]
-    else:
-        paths = [args.input_vrs]
+def VRSToVideo(vrsdir,max_frames=None):
+    
+    paths = [
+        p for p in vrsdir.iterdir()
+        if p.suffix == ".vrs" and not (p.with_suffix('.mp4').exists())
+    ]
 
     for vrs_path in paths:
         print(f"Processing {vrs_path}")
         reader = SyncVRSReader(str(vrs_path))
         try:
-            stream_id = pick_image_stream(reader, args.stream)
+            stream_id = pick_image_stream(reader, '214-1')
             print(f"Using stream: {stream_id}")
 
             # Build an iterator over data records for this stream
@@ -84,7 +70,7 @@ def main():
                 print("No data records found for that stream.")
                 continue
 
-            fps = args.fps if args.fps else guess_fps(reader, stream_id, indices)
+            fps = guess_fps(reader, stream_id, indices)
             print(f"FPS: {fps:.3f}")
 
             # Prime first frame to get frame size
@@ -107,9 +93,7 @@ def main():
                 # Set output_video name to match input, but with .mp4 extension
             output_video = vrs_path.with_suffix('.mp4')
             h, w = first_bgr.shape[:2]
-            # output_video = args.output_video
-            # if len(paths) > 1:
-            #     output_video = output_video.with_stem(f"{output_video.stem}_{Path(vrs_path).stem}")
+
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             writer = cv2.VideoWriter(str(output_video), fourcc, fps, (w, h), isColor=True)
             if not writer.isOpened():
@@ -122,7 +106,7 @@ def main():
 
             frames = 1
             for rec in fr[1:]:
-                if args.max_frames and frames >= args.max_frames:
+                if max_frames and frames >= max_frames:
                     break
                 if len(rec.image_blocks) == 0:
                     continue
@@ -144,5 +128,5 @@ def main():
             reader.close()
 
 if __name__ == "__main__":
-    main()
+    VRSToVideo('home/reggev/shared/aria')  # Example usage
 
