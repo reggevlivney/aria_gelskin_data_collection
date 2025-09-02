@@ -98,7 +98,7 @@ def prepare_aria_video(device_ip, recording_duration=10, profile='profile0'):
     recording_config.profile_name = profile
     recording_manager.recording_config = recording_config
 
-    return device
+    return device, device_client
 
 def start_aria_recording(device):
     recording_manager = device.recording_manager
@@ -108,7 +108,18 @@ def start_aria_recording(device):
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Record started...")
     return start_time
 
+def stop_aria_recording(device):
+    recording_manager = device.recording_manager
+    print(f"[ARIA] {time.strftime('%H:%M:%S')} Sending Stop command...")
+    recording_manager.stop_recording()
+    print(f"[ARIA] {time.strftime('%H:%M:%S')} Record stopped...")
+    stop_time = time.time()
+    return stop_time
 
+def disconnect_aria(device_client):
+    device_client.disconnect()
+    print(f"[ARIA] {time.strftime('%H:%M:%S')} Disconnected from Aria device.")
+    
 def pull_aria_recording():
     host = "132.68.54.35"
     script_path = "/home/reggev/video_transfer_aria.sh"
