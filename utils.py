@@ -3,6 +3,7 @@ import asyncio
 import subprocess
 import time
 import socket
+from datetime import datetime
 
 class SensorSocket:
     def __init__(self, host='132.68.54.35', port=12345):
@@ -79,7 +80,15 @@ class SensorSocket:
         self.socket.close()
 
 
-def prepare_aria_video(device_ip, recording_duration=10, profile='profile0'):
+def get_aria_ip(sensor_ip):
+    try:
+        result = subprocess.check_output(['ssh', sensor_ip, 'source ~/.bashrc && aria-ip']).decode().strip()
+        return result
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to get Aria IP: {e}")
+        return None
+
+def prepare_aria_video(device_ip, profile='profile0'):
     #  Optional: Set SDK's log level to Trace or Debug for more verbose logs. Defaults to Info
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Initializing Aria...")
     aria.set_log_level(aria.Level.Info)
@@ -96,6 +105,7 @@ def prepare_aria_video(device_ip, recording_duration=10, profile='profile0'):
 
     recording_config = aria.RecordingConfig()
     recording_config.profile_name = profile
+    # recording_config.time_sync_mode = aria.TimeSyncMode.Ntp
     recording_manager.recording_config = recording_config
 
     return device, device_client
@@ -116,8 +126,8 @@ def stop_aria_recording(device):
     stop_time = time.time()
     return stop_time
 
-def disconnect_aria(device_client):
-    device_client.disconnect()
+def disconnect_aria(device_client,device):
+    device_client.disconnect(device)
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Disconnected from Aria device.")
     
 def pull_aria_recording():
