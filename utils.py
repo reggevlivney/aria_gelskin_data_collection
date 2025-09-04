@@ -63,8 +63,8 @@ class SensorSocket:
         response = self.receive(1024)
         # Expecting response as "start_time,length" (both floats)
         try:
-            start_time_str, length_str = response.decode().split(',')
-            return float(start_time_str), float(length_str)
+            start_time_str, length_str, sync_data = response.decode().split(',')
+            return float(start_time_str), float(length_str), sync_data
         except Exception as e:
             raise Exception(f"Invalid response from sensor: {response}") from e
         
@@ -88,7 +88,7 @@ def get_aria_ip(sensor_ip):
         print(f"Failed to get Aria IP: {e}")
         return None
 
-def prepare_aria_video(device_ip, profile='profile0'):
+def prepare_aria_video(device_ip, profile=None):
     #  Optional: Set SDK's log level to Trace or Debug for more verbose logs. Defaults to Info
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Initializing Aria...")
     aria.set_log_level(aria.Level.Info)
@@ -102,12 +102,13 @@ def prepare_aria_video(device_ip, profile='profile0'):
     device = device_client.connect()
 
     recording_manager = device.recording_manager
-
     recording_config = aria.RecordingConfig()
-    recording_config.profile_name = profile
+    if profile:
+        recording_config.profile_name = profile
+    else:
+        recording_config.profile_name = device.status.default_recording_profile
     # recording_config.time_sync_mode = aria.TimeSyncMode.Ntp
     recording_manager.recording_config = recording_config
-
     return device, device_client
 
 def start_aria_recording(device):

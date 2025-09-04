@@ -55,11 +55,11 @@ def VRSToVideo(vrsdir,max_frames=None):
     ]
 
     for vrs_path in paths:
-        print(f"Processing {vrs_path}")
+        print(f"[VRS ] Processing {vrs_path}")
         reader = SyncVRSReader(str(vrs_path))
         try:
             stream_id = pick_image_stream(reader, '214-1')
-            print(f"Using stream: {stream_id}")
+            print(f"[VRS ] Using stream: {stream_id}")
 
             # Build an iterator over data records for this stream
             fr = reader.filtered_by_fields(stream_ids={stream_id}, record_types={"data"})
@@ -67,16 +67,16 @@ def VRSToVideo(vrsdir,max_frames=None):
             # Collect indices for FPS estimation and to count frames
             indices = list(range(len(fr)))
             if len(indices) == 0:
-                print("No data records found for that stream.")
+                print("[VRS ] No data records found for that stream.")
                 continue
 
             fps = guess_fps(reader, stream_id, indices)
-            print(f"FPS: {fps:.3f}")
+            print(f"[VRS ] FPS: {fps:.3f}")
 
             # Prime first frame to get frame size
             first = fr[0]
             if len(first.image_blocks) == 0:
-                print("First data record has no image blocks.")
+                print("[VRS ] First data record has no image blocks.")
                 continue
 
             # decode first block of first record
@@ -88,7 +88,7 @@ def VRSToVideo(vrsdir,max_frames=None):
                     break
 
             if first_bgr is None:
-                print("Could not decode the first image frame.")
+                print("[VRS ] Could not decode the first image frame.")
                 continue
                 # Set output_video name to match input, but with .mp4 extension
             output_video = vrs_path.with_suffix('.mp4')
@@ -97,7 +97,7 @@ def VRSToVideo(vrsdir,max_frames=None):
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             writer = cv2.VideoWriter(str(output_video), fourcc, fps, (w, h), isColor=True)
             if not writer.isOpened():
-                print("Failed to open VideoWriter. Try a different codec or filename (.avi).")
+                print("[VRS ] Failed to open VideoWriter. Try a different codec or filename (.avi).")
                 continue
 
             # write first
@@ -119,14 +119,14 @@ def VRSToVideo(vrsdir,max_frames=None):
                     writer.write(bgr)
                     frames += 1
                 except Exception as e:
-                    print(f"Skipping frame (decode error): {e}")
+                    print(f"[VRS ] Skipping frame (decode error): {e}")
 
             writer.release()
-            print(f"Wrote {frames} frames to {output_video}")
+            print(f"[VRS ] Wrote {frames} frames to {output_video}")
 
         finally:
             reader.close()
 
 if __name__ == "__main__":
-    VRSToVideo('home/reggev/shared/aria')  # Example usage
+    VRSToVideo(Path('/home/reggev/shared/aria'))  # Example usage
 
