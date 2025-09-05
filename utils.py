@@ -63,8 +63,8 @@ class SensorSocket:
         response = self.receive(1024)
         # Expecting response as "start_time,length" (both floats)
         try:
-            start_time_str, length_str, sync_data = response.decode().split(',')
-            return float(start_time_str), float(length_str), sync_data
+            start_time_str, length_str, unix_time, up_time = response.decode().split(',')
+            return float(start_time_str), float(length_str), float(unix_time), float(up_time)
         except Exception as e:
             raise Exception(f"Invalid response from sensor: {response}") from e
         
