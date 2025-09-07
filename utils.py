@@ -4,6 +4,8 @@ import subprocess
 import time
 import socket
 from datetime import datetime
+from pathlib import Path
+
 
 class SensorSocket:
     def __init__(self, host='132.68.54.35', port=12345):
@@ -45,6 +47,7 @@ class SensorSocket:
         response = self.receive(1024)
         if response == b'STARTED':
             self._set_state('RECORDING')
+            return time.time()
         else:
             raise Exception("Failed to start sensor recording")
 
@@ -55,6 +58,7 @@ class SensorSocket:
         response = self.receive(1024)
         if response == b'STOPPED':
             self._set_state('STOPPED')
+            return time.time()
         else:
             raise Exception("Failed to stop sensor recording")
 
@@ -71,8 +75,9 @@ class SensorSocket:
     def pull(self):
         self.socket.sendall(b'PULL')
         response = self.receive(1024)
-        if response == b'SENT':
+        if response != b'ERROR':
             print("[SNSR] Data pulled successfully")
+            return response.decode()  # Assuming response is the path to the pulled data``
         else:
             raise Exception("Failed to pull data from sensor")
         
@@ -141,6 +146,10 @@ def pull_aria_recording():
             check=True
         )
         print(f"[ARIA] {time.strftime('%H:%M:%S')} Video transfer script executed successfully.")
+        folder = Path('/home/reggev/shared/aria')
+        file = [f for f in folder.iterdir() if f.suffix == '.vrs']
+        most_recent_file = max(file, key=lambda x: x.stat().st_mtime)   
+        return most_recent_file
     except subprocess.CalledProcessError as e:
         print(f"[ARIA] {time.strftime('%H:%M:%S')} Failed to execute video transfer script: {e}")
     
