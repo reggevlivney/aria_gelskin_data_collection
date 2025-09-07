@@ -47,12 +47,22 @@ def decode_block_to_bgr(spec, block_bytes):
         return img
     raise RuntimeError("Unknown image block type; could not decode.")
 
-def VRSToVideo(vrsdir,max_frames=None):
-    
-    paths = [
-        p for p in vrsdir.iterdir()
-        if p.suffix == ".vrs" and not (p.with_suffix('.mp4').exists())
-    ]
+def VRSToVideo(vrsdir,start_time_unix=None,end_time_unix=None,unix_time_sample=None,up_time_sample=None):
+    if vrsdir.is_file():
+        if start_time_unix is not None or end_time_unix is not None:
+            start_time_boot = up_time_sample + (start_time_unix - unix_time_sample)
+            end_time_boot = up_time_sample + (end_time_unix - unix_time_sample)
+
+        paths = [vrsdir]
+    else:
+        if start_time_unix is not None or end_time_unix is not None:
+            print("[VRS ] start_time and end_time are only supported when vrsdir is a file, not a directory.")
+            return
+        paths = [
+            p for p in vrsdir.iterdir()
+            if p.suffix == ".vrs" and not (p.with_suffix('.mp4').exists())
+            ]
+
 
     for vrs_path in paths:
         print(f"[VRS ] Processing {vrs_path}")
@@ -101,16 +111,16 @@ def VRSToVideo(vrsdir,max_frames=None):
                 continue
 
             # write first
-            first_bgr = cv2.rotate(first_bgr, cv2.ROTATE_90_CLOCKWISE)
+            first_bgr = cv2.rotate(first_bgr, cv2.ROTATE_90_CLOCKWISE) # Because the image comes pre-rotated
             writer.write(first_bgr)
 
             frames = 1
             for rec in fr[1:]:
-                if max_frames and frames >= max_frames:
-                    break
+                if start_time_unix is not None and end_time_unix is not None and (rec.timestamp < start_time_boot or rec.timestamp > end_time_boot):
+                    continue
                 if len(rec.image_blocks) == 0:
                     continue
-                spec, block = rec.image_specs[0], rec.image_blocks[0]
+                spec, block = rec.image_specs[0], rec.image_blocks[0] # Use first block to get image specs
                 try:
                     bgr = decode_block_to_bgr(spec, memoryview(block))
                     if bgr.shape[0] != h or bgr.shape[1] != w:
@@ -128,5 +138,6 @@ def VRSToVideo(vrsdir,max_frames=None):
             reader.close()
 
 if __name__ == "__main__":
-    VRSToVideo(Path('/home/reggev/shared/aria'))  # Example usage
+    # VRSToVideo(Path('/home/reggev/shared/aria'))  # Example usage
+    VRSToVideo(Path('/home/reggev/shared/aria/aria_2025-09-04-14-58-15.vrs'),9883.8,9893.9)
 

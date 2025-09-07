@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print(f"[MAIN] Sensor recording stopped at {time.time()}")
     # aria_stop_time = utils.stop_aria_recording(device)
     # print(f"[MAIN] Aria recording stopped at {aria_stop_time}")
-    sensor_start_time, sensor_duration, unix_time, up_time = sensor.get_recording_time()
+    sensor_start_time, sensor_duration, unix_time_sample, up_time_sample = sensor.get_recording_time()
     print(f"[MAIN] Pulling video from sensor...")
     sensor.pull()
     print('[MAIN] Closing sensor connection...')
