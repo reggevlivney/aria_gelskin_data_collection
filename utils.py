@@ -96,7 +96,7 @@ def get_aria_ip(sensor_ip):
 def prepare_aria_video(device_ip, profile=None):
     #  Optional: Set SDK's log level to Trace or Debug for more verbose logs. Defaults to Info
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Initializing Aria...")
-    aria.set_log_level(aria.Level.Info)
+    # aria.set_log_level(aria.Level.Info)
     
     device_client = aria.DeviceClient()
 
@@ -111,7 +111,25 @@ def prepare_aria_video(device_ip, profile=None):
     if profile:
         recording_config.profile_name = profile
     else:
-        recording_config.profile_name = device.status.default_recording_profile
+        # Apply your settings
+        recording_config.rgb_camera.enabled = True
+        recording_config.rgb_camera.width = 1408
+        recording_config.rgb_camera.height = 1408
+        recording_config.rgb_camera.fps = 20
+        recording_config.rgb_camera.image_format = aria.ImageFormat.JPEG
+        recording_config.rgb_camera.jpeg_quality = 80
+
+        # Disable other sensors
+        recording_config.imu1.enabled = False
+        recording_config.imu2.enabled = False
+        recording_config.audio.enabled = False
+        recording_config.magnetometer.enabled = False
+        recording_config.barometer.enabled = False
+        recording_config.gps.enabled = False
+        recording_config.ble.enabled = False
+        recording_config.wifi.enabled = False
+        recording_config.et_camera.enabled = False
+        recording_config.slam_cameras.enabled = False
     # recording_config.time_sync_mode = aria.TimeSyncMode.Ntp
     recording_manager.recording_config = recording_config
     return device, device_client
@@ -153,7 +171,5 @@ def pull_aria_recording():
     except subprocess.CalledProcessError as e:
         print(f"[ARIA] {time.strftime('%H:%M:%S')} Failed to execute video transfer script: {e}")
     
-
-
 
 

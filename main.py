@@ -1,6 +1,7 @@
 import asyncio
 import utils    
 import argparse
+import aria as aaaa
 import aria.sdk as aria
 from vrs_to_video import VRSToVideo
 from pathlib import Path
@@ -9,7 +10,7 @@ import time
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Record Aria video with optional length.")
     parser.add_argument("--length", type=int, default=10, help="Recording length in seconds")
-    parser.add_argument("--aria-ip", type=str, default="132.69.202.74", help="Aria device IP address")
+    parser.add_argument("--aria-ip", type=str, default="132.69.202.183", help="Aria device IP address")
     parser.add_argument("--sensor-ip", type=str, default="132.68.54.35", help="Sensor device IP address")
     args = parser.parse_args()
 
@@ -42,8 +43,8 @@ if __name__ == "__main__":
     aria_stop_time = utils.stop_aria_recording(device)
     print(f"[MAIN] Aria recording stopped at {aria_stop_time}")
     print(time.time())
-    sensor_start_time, sensor_end_time, _, aria_up_time_sample = sensor.get_recording_time()
     lab_unix_time_sample = time.time()
+    sensor_start_time, sensor_end_time, _, aria_up_time_sample = sensor.get_recording_time()
     print(f"[MAIN] Pulling video from sensor...")
     sensor_video_path = sensor.pull()
     print('[MAIN] Closing sensor connection...')

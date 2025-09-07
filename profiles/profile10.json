@@ -1,0 +1,105 @@
+{
+ "name": "profile10",
+ "description": "All sensors enabled with low fps (RGB 10fps 2MP, SLAM 10fps VGA, ET 10fps QVGA; Audio on)",
+ "imu1": {
+  "enabled": true,
+  "dataRateHz": 1000
+ },
+ "imu2": {
+  "enabled": true,
+  "dataRateHz": 800
+ },
+ "magnetometer": {
+  "enabled": true,
+  "dataRateHz": 10
+ },
+ "barometer": {
+  "enabled": true,
+  "dataRateHz": 50
+ },
+ "audio": {
+  "enabled": true,
+  "numChannels": 7,
+  "sampleRateHz": "48000",
+  "periodSize": 2048
+ },
+ "gps": {
+  "enabled": true,
+  "dataRateHz": 1
+ },
+ "ble": {
+  "enabled": true,
+  "scanDurationMs": 10000
+ },
+ "wifi": {
+  "enabled": true,
+  "scanDurationMs": 10000,
+  "wifiScanModeActive": true,
+  "wifiMinDwellTimeMs": 20,
+  "wifiMaxDwellTimeMs": 40
+ },
+ "slamCameras": {
+  "enabled": true,
+  "width": 640,
+  "height": 480,
+  "fps": 10,
+  "autoExposureEnabled": true,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "0",
+  "gain": 0,
+  "irLedEnabled": false,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 90,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "etCamera": {
+  "enabled": true,
+  "width": 320,
+  "height": 240,
+  "fps": 10,
+  "autoExposureEnabled": false,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "1000",
+  "gain": 1,
+  "irLedEnabled": true,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 90,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "rgbCamera": {
+  "enabled": true,
+  "width": 1408,
+  "height": 1408,
+  "fps": 10,
+  "autoExposureEnabled": true,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "0",
+  "gain": 0,
+  "irLedEnabled": false,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 90,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "attention": {
+  "enabled": false
+ },
+ "displayName": ""
+}

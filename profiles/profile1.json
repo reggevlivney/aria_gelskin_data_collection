@@ -1,0 +1,25 @@
+{
+  "name": "profile1",
+  "description": "Only RGB at 20fps",
+  "sensors": {
+    "rgb": {
+      "enabled": true,
+      "width": 1408,
+      "height": 1408,
+      "fps": 20,
+      "imageFormat": "JPEG",
+      "jpegQuality": 80
+    },
+    "imu1": { "enabled": false },
+    "imu2": { "enabled": false },
+    "magnetometer": { "enabled": false },
+    "barometer": { "enabled": false },
+    "audio": { "enabled": false },
+    "gps": { "enabled": false },
+    "ble": { "enabled": false },
+    "wifi": { "enabled": false },
+    "slamCameras": { "enabled": false },
+    "etCamera": { "enabled": false },
+    "attention": { "enabled": false }
+  }
+}

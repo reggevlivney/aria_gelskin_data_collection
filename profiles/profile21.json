@@ -1,0 +1,105 @@
+{
+ "name": "profile21",
+ "description": "Noise and hearing mode with high RGB fps (RGB 15fps 2MP, SLAM 15fps VGA, ET 30fps QVGA; Audio on; GPS, Wi-Fi and BLE off)",
+ "imu1": {
+  "enabled": true,
+  "dataRateHz": 1000
+ },
+ "imu2": {
+  "enabled": true,
+  "dataRateHz": 800
+ },
+ "magnetometer": {
+  "enabled": true,
+  "dataRateHz": 10
+ },
+ "barometer": {
+  "enabled": true,
+  "dataRateHz": 50
+ },
+ "audio": {
+  "enabled": true,
+  "numChannels": 7,
+  "sampleRateHz": "48000",
+  "periodSize": 2048
+ },
+ "gps": {
+  "enabled": false,
+  "dataRateHz": 0
+ },
+ "ble": {
+  "enabled": false,
+  "scanDurationMs": 0
+ },
+ "wifi": {
+  "enabled": false,
+  "scanDurationMs": 0,
+  "wifiScanModeActive": false,
+  "wifiMinDwellTimeMs": 0,
+  "wifiMaxDwellTimeMs": 0
+ },
+ "slamCameras": {
+  "enabled": true,
+  "width": 640,
+  "height": 480,
+  "fps": 15,
+  "autoExposureEnabled": true,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "0",
+  "gain": 0,
+  "irLedEnabled": false,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 90,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "etCamera": {
+  "enabled": true,
+  "width": 320,
+  "height": 240,
+  "fps": 30,
+  "autoExposureEnabled": false,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "1000",
+  "gain": 1,
+  "irLedEnabled": true,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 90,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "rgbCamera": {
+  "enabled": true,
+  "width": 1408,
+  "height": 1408,
+  "fps": 15,
+  "autoExposureEnabled": true,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "0",
+  "gain": 0,
+  "irLedEnabled": false,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 90,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "attention": {
+  "enabled": false
+ },
+ "displayName": ""
+}
