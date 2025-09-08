@@ -7,7 +7,8 @@ from vrs_to_video import VRSToVideo
 from pathlib import Path
 import time
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser(description="Record Aria video with optional length.")
     parser.add_argument("--length", type=int, default=10, help="Recording length in seconds")
     parser.add_argument("--aria-ip", type=str, default="132.69.202.183", help="Aria device IP address")
@@ -63,3 +64,7 @@ if __name__ == "__main__":
     print(f"[MAIN] Aria recording from {aria_start_time} to {aria_stop_time}, duration {aria_stop_time - aria_start_time} seconds")
     print(f"[MAIN] Sensor recording started at {sensor_start_time} to {sensor_end_time}, duration {sensor_end_time - sensor_start_time} seconds")
     print(f"[MAIN] All done!")
+
+
+if __name__ == "__main__":
+    main()
