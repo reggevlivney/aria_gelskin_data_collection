@@ -154,8 +154,8 @@ def disconnect_aria(device_client,device):
     device_client.disconnect(device)
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Disconnected from Aria device.")
     
-def pull_aria_recording():
-    host = "132.68.54.35"
+def pull_aria_recording(sensor_ip):
+    host = sensor_ip
     script_path = "/home/reggev/video_transfer_aria.sh"
     print(f"[ARIA] {time.strftime('%H:%M:%S')} Pulling recordings from Aria device...")
     try:

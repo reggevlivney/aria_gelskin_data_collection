@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Record Aria video with optional length.")
     parser.add_argument("--length", type=int, default=10, help="Recording length in seconds")
     parser.add_argument("--aria-ip", type=str, default="132.69.202.183", help="Aria device IP address")
-    parser.add_argument("--sensor-ip", type=str, default="132.68.54.35", help="Sensor device IP address")
+    parser.add_argument("--sensor-ip", type=str, default="132.69.205.22", help="Sensor device IP address")
     args = parser.parse_args()
 
     sensor_ip = args.sensor_ip
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     print(f"[MAIN] Disconnecting from Aria...")
     utils.disconnect_aria(device_client,device)
     print(f"[MAIN] Pulling video from Aria...")
-    aria_video_path = utils.pull_aria_recording()
+    aria_video_path = utils.pull_aria_recording(sensor_ip)
     print(f"[MAIN] Converting Aria VRS to MP4...")
     VRSToVideo(Path(aria_video_path),
                 start_time_unix=sensor_start_time,
