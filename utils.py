@@ -105,7 +105,6 @@ def prepare_aria_video(device_ip, profile=None):
     device_client.set_client_config(client_config)
 
     device = device_client.connect()
-
     recording_manager = device.recording_manager
     recording_config = aria.RecordingConfig()
     if profile:
@@ -130,7 +129,6 @@ def prepare_aria_video(device_ip, profile=None):
         recording_config.wifi.enabled = False
         recording_config.et_camera.enabled = False
         recording_config.slam_cameras.enabled = False
-    # recording_config.time_sync_mode = aria.TimeSyncMode.Ntp
     recording_manager.recording_config = recording_config
     return device, device_client
 
