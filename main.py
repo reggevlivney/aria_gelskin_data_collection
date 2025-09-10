@@ -43,7 +43,7 @@ async def main(context=None,chat_id=None):
     sensor.connect()
     sensor.prepare()
     await out.print(f"[MAIN] Starting recording for {args.length} seconds...")
-    aria_start_time = utils.start_aria_recording(device)
+    aria_start_time = utils.start_aria_recording(device) - 0.2
     await out.print(f"[MAIN] Aria recording started at {aria_start_time}")
     _ = sensor.start()
     await out.print(f"[MAIN] Sensor recording started at {time.time()}")

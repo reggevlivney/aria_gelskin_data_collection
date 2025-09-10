@@ -52,6 +52,6 @@ def combine_videos_side_by_side(video1_path, video2_path, output_path):
 
 
 # Example usage:
-combine_videos_side_by_side("/home/reggev/shared/aria/aria_2025-09-10-16-59-44.mp4",
-                             "/home/reggev/shared/sensor/sensor_2025-09-10-16-59-14.mp4",
+combine_videos_side_by_side("/home/reggev/shared/aria/aria_2025-09-10-18-04-38.mp4",
+                             "/home/reggev/shared/sensor/sensor_2025-09-10-18-04-10.mp4",
                                "/home/reggev/shared/output_1.mp4")

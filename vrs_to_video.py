@@ -120,7 +120,7 @@ def VRSToVideo(vrsdir,
             for rec in fr[1:]:
                 video_time = rec.timestamp - first_timestamp
                 if (video_time < sensor_start_time - aria_start_time) or (video_time > sensor_end_time - aria_start_time):
-                    pass
+                    # pass
                     continue
                 if len(rec.image_blocks) == 0:
                     continue
