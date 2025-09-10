@@ -47,7 +47,12 @@ def decode_block_to_bgr(spec, block_bytes):
         return img
     raise RuntimeError("Unknown image block type; could not decode.")
 
-def VRSToVideo(vrsdir,start_time_unix=None,end_time_unix=None,unix_time_sample=None,up_time_sample=None):
+def VRSToVideo(vrsdir,
+               start_time_unix=None,
+               end_time_unix=None,
+               unix_time_sample=None,
+               aria_unix_time_sample=None,
+               up_time_sample=None):
     if vrsdir.is_file():
         if start_time_unix is not None or end_time_unix is not None:
             start_time_boot = up_time_sample + (start_time_unix - unix_time_sample)
@@ -117,7 +122,8 @@ def VRSToVideo(vrsdir,start_time_unix=None,end_time_unix=None,unix_time_sample=N
             frames = 1
             for rec in fr[1:]:
                 if start_time_unix is not None and end_time_unix is not None and (rec.timestamp < start_time_boot or rec.timestamp > end_time_boot):
-                    continue
+                    pass # This used to be "continue", but we want to write all frames for now
+                         # time syncing doesnt work perfectly yet
                 if len(rec.image_blocks) == 0:
                     continue
                 spec, block = rec.image_specs[0], rec.image_blocks[0] # Use first block to get image specs

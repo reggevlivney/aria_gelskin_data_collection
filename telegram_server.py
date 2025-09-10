@@ -4,8 +4,6 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
 import main
 
-token = '8312147261:'
-
 # logging.basicConfig(
 #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 #     level=logging.INFO
@@ -38,6 +36,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.reply_text('Maybe we can try again?', reply_markup=reply_markup)            
 
 if __name__ == '__main__':
+    with open('/home/reggev/token.txt', 'r') as file: token = file.read().strip()
     application = ApplicationBuilder().token(token).build()
     print('Bot started...')
     start_handler = CommandHandler('start', start)

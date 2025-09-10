@@ -56,7 +56,7 @@ async def main(context=None,chat_id=None):
     await out.print(f"[MAIN] Aria recording stopped at {aria_stop_time}")
     print(time.time())
     lab_unix_time_sample = time.time()
-    sensor_start_time, sensor_end_time, _, aria_up_time_sample = sensor.get_recording_time()
+    sensor_start_time, sensor_end_time, aria_unix_time_sample, aria_up_time_sample = sensor.get_recording_time()
     await out.print(f"[MAIN] Pulling video from sensor...")
     sensor_video_path = sensor.pull()
     await out.print('[MAIN] Closing sensor connection...')
@@ -70,6 +70,7 @@ async def main(context=None,chat_id=None):
                 start_time_unix=sensor_start_time,
                   end_time_unix=sensor_end_time,
                   unix_time_sample=lab_unix_time_sample,
+                  aria_unix_time_sample=aria_unix_time_sample,
                   up_time_sample=aria_up_time_sample)
 
     await out.print(f"[MAIN] Aria recording from {aria_start_time} to {aria_stop_time}, duration {aria_stop_time - aria_start_time} seconds")
