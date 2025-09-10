@@ -55,8 +55,8 @@ async def main(context=None,chat_id=None):
     aria_stop_time = utils.stop_aria_recording(device)
     await out.print(f"[MAIN] Aria recording stopped at {aria_stop_time}")
     print(time.time())
-    lab_unix_time_sample = time.time()
-    sensor_start_time, sensor_end_time, aria_unix_time_sample, aria_up_time_sample = sensor.get_recording_time()
+    # lab_unix_time_sample = time.time()
+    sensor_start_time, sensor_end_time, _, _ = sensor.get_recording_time()
     await out.print(f"[MAIN] Pulling video from sensor...")
     sensor_video_path = sensor.pull()
     await out.print('[MAIN] Closing sensor connection...')
@@ -66,12 +66,17 @@ async def main(context=None,chat_id=None):
     await out.print(f"[MAIN] Pulling video from Aria...")
     aria_video_path = utils.pull_aria_recording(sensor_ip)
     await out.print(f"[MAIN] Converting Aria VRS to MP4...")
+    # VRSToVideo(Path(aria_video_path),
+    #             start_time_unix=sensor_start_time,
+    #               end_time_unix=sensor_end_time,
+    #               unix_time_sample=lab_unix_time_sample,
+    #               aria_unix_time_sample=aria_unix_time_sample,
+    #               up_time_sample=aria_up_time_sample)
     VRSToVideo(Path(aria_video_path),
-                start_time_unix=sensor_start_time,
-                  end_time_unix=sensor_end_time,
-                  unix_time_sample=lab_unix_time_sample,
-                  aria_unix_time_sample=aria_unix_time_sample,
-                  up_time_sample=aria_up_time_sample)
+                sensor_start_time=sensor_start_time,
+                sensor_end_time=sensor_end_time,
+                aria_start_time=aria_start_time,
+                aria_end_time=aria_stop_time)
 
     await out.print(f"[MAIN] Aria recording from {aria_start_time} to {aria_stop_time}, duration {aria_stop_time - aria_start_time} seconds")
     await out.print(f"[MAIN] Sensor recording started at {sensor_start_time} to {sensor_end_time}, duration {sensor_end_time - sensor_start_time} seconds")

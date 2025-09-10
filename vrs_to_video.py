@@ -48,21 +48,17 @@ def decode_block_to_bgr(spec, block_bytes):
     raise RuntimeError("Unknown image block type; could not decode.")
 
 def VRSToVideo(vrsdir,
-               start_time_unix=None,
-               end_time_unix=None,
-               unix_time_sample=None,
-               aria_unix_time_sample=None,
-               up_time_sample=None):
+               sensor_start_time=None,
+               sensor_end_time=None,
+               aria_start_time=None,
+               aria_end_time=None,):
     if vrsdir.is_file():
-        if start_time_unix is not None or end_time_unix is not None:
-            start_time_boot = up_time_sample + (start_time_unix - unix_time_sample)
-            end_time_boot = up_time_sample + (end_time_unix - unix_time_sample)
 
         paths = [vrsdir]
     else:
-        if start_time_unix is not None or end_time_unix is not None:
-            print("[VRS ] start_time and end_time are only supported when vrsdir is a file, not a directory.")
-            return
+        # if start_time_unix is not None or end_time_unix is not None:
+        #     print("[VRS ] start_time and end_time are only supported when vrsdir is a file, not a directory.")
+        #     return
         paths = [
             p for p in vrsdir.iterdir()
             if p.suffix == ".vrs" and not (p.with_suffix('.mp4').exists())
@@ -120,10 +116,12 @@ def VRSToVideo(vrsdir,
             writer.write(first_bgr)
 
             frames = 1
+            first_timestamp = fr[0].timestamp
             for rec in fr[1:]:
-                if start_time_unix is not None and end_time_unix is not None and (rec.timestamp < start_time_boot or rec.timestamp > end_time_boot):
-                    pass # This used to be "continue", but we want to write all frames for now
-                         # time syncing doesnt work perfectly yet
+                video_time = rec.timestamp - first_timestamp
+                if (video_time < sensor_start_time - aria_start_time) or (video_time > sensor_end_time - aria_start_time):
+                    pass
+                    continue
                 if len(rec.image_blocks) == 0:
                     continue
                 spec, block = rec.image_specs[0], rec.image_blocks[0] # Use first block to get image specs
@@ -145,5 +143,9 @@ def VRSToVideo(vrsdir,
 
 if __name__ == "__main__":
     # VRSToVideo(Path('/home/reggev/shared/aria'))  # Example usage
-    VRSToVideo(Path('/home/reggev/shared/aria/aria_2025-09-04-14-58-15.vrs'),9883.8,9893.9)
+    VRSToVideo(Path('/home/reggev/shared/aria/aria_2025-09-10-16-06-42.vrs'),
+               sensor_start_time=1757509581.1777112,
+               sensor_end_time=1757509594.069623,
+               aria_start_time=1757509581.0607738,
+               aria_end_time=1757509594.6071248)
 
