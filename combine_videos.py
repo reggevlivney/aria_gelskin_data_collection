@@ -1,4 +1,5 @@
 import cv2
+from pathlib import Path
 
 def combine_videos_side_by_side(video1_path, video2_path, output_path):
     cap1 = cv2.VideoCapture(video1_path)
@@ -50,8 +51,20 @@ def combine_videos_side_by_side(video1_path, video2_path, output_path):
     out.release()
     print(f"Output saved to {output_path}")
 
+def get_most_recent_mp4(folder_path):
+    folder = Path(folder_path)
+    mp4_files = list(folder.glob("*.mp4"))
+    
+    if not mp4_files:
+        return None  # No mp4 files found
+    
+    # Sort by modification time, newest last, take the last
+    most_recent = max(mp4_files, key=lambda f: f.stat().st_mtime)
+    return most_recent
+    
 
 # Example usage:
-combine_videos_side_by_side("/home/reggev/shared/aria/aria_2025-09-10-18-04-38.mp4",
-                             "/home/reggev/shared/sensor/sensor_2025-09-10-18-04-10.mp4",
-                               "/home/reggev/shared/output_1.mp4")
+aria_video = get_most_recent_mp4("/home/reggev/shared/aria")
+sensor_video = get_most_recent_mp4("/home/reggev/shared/sensor")
+output_video = "/home/reggev/shared/output_combined.mp4"
+combine_videos_side_by_side(aria_video, sensor_video, output_video)
