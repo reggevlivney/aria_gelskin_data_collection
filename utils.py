@@ -87,11 +87,35 @@ class SensorSocket:
 
 def get_aria_ip(sensor_ip):
     try:
-        result = subprocess.check_output(['ssh', sensor_ip, 'source ~/.bashrc && aria-ip']).decode().strip()
-        return result
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to get Aria IP: {e}")
-        return None
+        completed = subprocess.run(
+            ['ssh', sensor_ip, 'source ~/.bashrc && aria-ip'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+            timeout=15
+        )
+    except subprocess.TimeoutExpired as e:
+        raise ConnectionError(f"SSH to {sensor_ip} timed out") from e
+    except Exception as e:
+        raise RuntimeError(f"Failed to run ssh: {e}") from e
+
+    if completed.returncode != 0:
+        output = (completed.stderr + "\n" + completed.stdout).strip()
+        network_indicators = [
+            "Connection timed out",
+            "No route to host",
+            "Could not resolve hostname",
+            "Connection refused",
+            "Network is unreachable",
+            "ssh: connect to host",
+        ]
+        if any(ind in output for ind in network_indicators):
+            raise ConnectionError(f"SSH to {sensor_ip} failed due to network issue: {output}")
+        else:
+            raise RuntimeError(f"Failed to get Aria IP from {sensor_ip}: {output}")
+
+    return completed.stdout.strip()
 
 def prepare_aria_video(device_ip, profile=None):
     #  Optional: Set SDK's log level to Trace or Debug for more verbose logs. Defaults to Info
