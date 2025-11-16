@@ -21,7 +21,7 @@ async def main(context=None,chat_id=None):
     out = OutputObject(context,chat_id)
     parser = argparse.ArgumentParser(description="Record Aria video with optional length.")
     parser.add_argument("--length", type=int, default=10, help="Recording length in seconds")
-    parser.add_argument("--aria-ip", type=str, default="132.69.202.218", help="Aria device IP address")
+    parser.add_argument("--aria-ip", type=str, default="132.69.211.11", help="Aria device IP address")
     parser.add_argument("--sensor-ip", type=str, default="132.69.205.22", help="Sensor device IP address")
     args = parser.parse_args()
 
