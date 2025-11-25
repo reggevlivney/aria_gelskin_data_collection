@@ -30,6 +30,13 @@ class SensorSocket:
         self.socket.connect((self.host, self.port))
         self._set_state('CONNECTED')
 
+    def aria_ip(self):
+        self.socket.sendall(b'IP')
+        response = self.receive(1024)
+        if response.startswith(b'ERROR'):
+            raise Exception("[ARIA] Failed to get Aria IP from sensor")
+        return response.decode()
+    
     def prepare(self):
         if self.state != 'CONNECTED':
             raise Exception("Socket not connected")
@@ -77,7 +84,8 @@ class SensorSocket:
         response = self.receive(1024)
         if response != b'ERROR':
             print("[SNSR] Data pulled successfully")
-            return response.decode()  # Assuming response is the path to the pulled data``
+            paths = response.decode().split(',')
+            return paths  # Assuming response is the path to the pulled data``
         else:
             raise Exception("Failed to pull data from sensor")
         

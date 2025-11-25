@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Aria Old Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "python": "/home/reggev/aria_old/bin/python"
+        },
+        {
             "name": "VRS Debug",
             "type": "debugpy",
             "request": "launch",
