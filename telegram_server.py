@@ -114,18 +114,17 @@ class Bot():
         await context.bot.send_message(chat_id=chat_id, text=text, reply_markup=InlineKeyboardMarkup(keyboard))
 
         # handler references so we can remove them later
-        choice_handler = None
-        value_handler = None
+        self.choice_handler = None
+        self.value_handler = None
 
         async def handle_choice(inner_update: Update, inner_context: ContextTypes.DEFAULT_TYPE):
-            nonlocal choice_handler, value_handler
             query = inner_update.callback_query
             await query.answer()
             if query.data == 'cfg_cancel':
                 await query.message.reply_text('Edit cancelled.', reply_markup=self.main_reply_markup)
                 # cleanup
-                if choice_handler:
-                    self.application.remove_handler(choice_handler)
+                if self.choice_handler:
+                    self.application.remove_handler(self.choice_handler)
                     self.application.add_handler(self.main_button_handler)
                 return
 
@@ -138,8 +137,8 @@ class Bot():
             field = field_map.get(query.data)
             if not field:
                 await query.message.reply_text('Unknown selection.', reply_markup=self.main_reply_markup)
-                if choice_handler:
-                    self.application.remove_handler(choice_handler)
+                if self.choice_handler:
+                    self.application.remove_handler(self.choice_handler)
                     self.application.add_handler(self.main_button_handler)
                 return
 
@@ -152,20 +151,15 @@ class Bot():
 
             await query.message.reply_text(prompt)
 
-            # Prepare a message handler to capture the next text message from this chat
-            def chat_filter(message):
-                return message.chat.id == chat_id
-
             async def handle_value(msg_update: Update, msg_context: ContextTypes.DEFAULT_TYPE):
-                nonlocal choice_handler, value_handler
                 text = msg_update.message.text.strip()
                 if text.lower() == 'cancel':
                     await msg_update.message.reply_text('Edit cancelled.', reply_markup=self.main_reply_markup)
                     # cleanup
-                    if value_handler:
-                        self.application.remove_handler(value_handler)
-                    if choice_handler:
-                        self.application.remove_handler(choice_handler)
+                    if self.value_handler:
+                        self.application.remove_handler(self.value_handler)
+                    if self.choice_handler:
+                        self.application.remove_handler(self.choice_handler)
                     self.application.add_handler(self.main_button_handler)
                     return
                     return
@@ -197,22 +191,22 @@ class Bot():
                     await msg_update.message.reply_text(f"{field} updated successfully.", reply_markup=self.main_reply_markup)
 
                 # cleanup handlers
-                if value_handler:
-                    self.application.remove_handler(value_handler)
-                if choice_handler:
-                    self.application.remove_handler(choice_handler)
+                if self.value_handler:
+                    self.application.remove_handler(self.value_handler)
+                if self.choice_handler:
+                    self.application.remove_handler(self.choice_handler)
                 self.application.add_handler(self.main_button_handler)
 
             # add the message handler
-            value_handler = MessageHandler(filters.TEXT & filters.Chat(chat_id), handle_value)
-            self.application.add_handler(value_handler)
+            self.value_handler = MessageHandler(filters.TEXT & filters.Chat(chat_id), handle_value)
+            self.application.add_handler(self.value_handler)
 
             # remove the choice handler to avoid double-handling
-            if choice_handler:
-                self.application.remove_handler(choice_handler)
+            if self.choice_handler:
+                self.application.remove_handler(self.choice_handler)
         
-        choice_handler = CallbackQueryHandler(handle_choice, pattern='^cfg_')
-        self.application.add_handler(choice_handler)
+        self.choice_handler = CallbackQueryHandler(handle_choice, pattern='^cfg_')
+        self.application.add_handler(self.choice_handler)
         self.application.remove_handler(self.main_button_handler)
             
 if __name__ == '__main__':
