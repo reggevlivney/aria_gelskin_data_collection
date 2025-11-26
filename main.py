@@ -17,34 +17,28 @@ class OutputObject():
         if self.context is not None:
             await self.context.bot.send_message(chat_id=self.chat_id, text=message)
 
-async def main(context=None,chat_id=None):
+async def main(context=None,chat_id=None,duration=10,aria_ip="132.69.207.12",sensor_ip="132.69.207.24"):
     out = OutputObject(context,chat_id)
-    parser = argparse.ArgumentParser(description="Record Aria video with optional length.")
-    parser.add_argument("--length", type=int, default=10, help="Recording length in seconds")
-    parser.add_argument("--aria-ip", type=str, default="132.69.207.12", help="Aria device IP address")
-    parser.add_argument("--sensor-ip", type=str, default="132.69.207.24", help="Sensor device IP address")
-    args = parser.parse_args()
 
-    sensor_ip = args.sensor_ip
     try:
         await out.print(f"[MAIN] Connecting to Sensor...")
         sensor = utils.SensorSocket(host=sensor_ip, port=12345)
         sensor.connect()
         await out.print(f"[MAIN] Getting Aria IP...")
         aria_ip = sensor.aria_ip()
-        await out.print(f"[MAIN] Preparing to record {args.length} seconds of video from Aria at {aria_ip} and sensor at {sensor_ip}")
+        await out.print(f"[MAIN] Preparing to record {duration} seconds of video from Aria at {aria_ip} and sensor at {sensor_ip}")
         await out.print(f"[MAIN] Make sure Aria is in the same network as this computer and the sensor")
         await out.print(f"[MAIN] Preparing Aria...")
         device, device_client = utils.prepare_aria_video(device_ip=aria_ip,profile='profile5')
         await out.print(f"[MAIN] Preparing Sensor...")
         sensor.prepare()
-        await out.print(f"[MAIN] Starting recording for {args.length} seconds...")
+        await out.print(f"[MAIN] Starting recording for {duration} seconds...")
         aria_start_time = utils.start_aria_recording(device) - 0.2
         await out.print(f"[MAIN] Aria recording started at {aria_start_time}")
         _ = sensor.start()
         await out.print(f"[MAIN] Sensor recording started at {time.time()}")
-        await out.print(f"[MAIN] Waiting for {args.length} seconds...")
-        time.sleep(args.length)
+        await out.print(f"[MAIN] Waiting for {duration} seconds...")
+        time.sleep(duration)
         await out.print(f"[MAIN] Sending stop command at {time.time()}")
         _ = sensor.stop()
         await out.print(f"[MAIN] Sensor recording stopped at {time.time()}")

@@ -17,15 +17,9 @@ class OutputObject():
         if self.context is not None:
             await self.context.bot.send_message(chat_id=self.chat_id, text=message)
 
-async def main(context=None,chat_id=None):
+async def main(context=None,chat_id=None,duration=10,aria_ip="132.69.202.144",sensor_ip="132.69.207.24"):
     out = OutputObject(context,chat_id)
-    parser = argparse.ArgumentParser(description="Record Aria video with optional length.")
-    parser.add_argument("--length", type=int, default=10, help="Recording length in seconds")
-    parser.add_argument("--aria-ip", type=str, default="132.69.202.144", help="Aria device IP address")
-    parser.add_argument("--sensor-ip", type=str, default="132.69.207.24", help="Sensor device IP address")
-    args = parser.parse_args()
 
-    sensor_ip = args.sensor_ip
     # await out.print(f"[MAIN] Preparing to record {args.length} seconds of video from sensor at {sensor_ip}")
     await out.print(f"[MAIN] Connnecting to Sensor...")
     sensor = utils.SensorSocket(host=sensor_ip, port=12345)
