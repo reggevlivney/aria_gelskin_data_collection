@@ -18,7 +18,7 @@ class Bot():
                 ,[InlineKeyboardButton("Edit Config", callback_data='edit_config')]]
         self.main_reply_markup = InlineKeyboardMarkup(self.main_keyboard)
         self.application = ApplicationBuilder().token(token).build()
-
+        self.config_path = Path(__file__).parent / 'config.json'
         self.load_config()
         print('Bot started...')
 
@@ -26,16 +26,17 @@ class Bot():
         self.application.add_handler(self.start_handler)
         self.main_button_handler = CallbackQueryHandler(self.button)
         self.application.add_handler(self.main_button_handler)
+        self.choice_handler = None
+        self.value_handler = None
         
         self.application.run_polling()
 
     def load_config(self):
-        config_path = Path(__file__).parent / 'config.json'
-        if not config_path.exists():
+        if not self.config_path.exists():
             # create default config if missing
-            config_path.write_text(json.dumps({"sensor_ip": "", "aria_ip": "", "duration": 0}, indent=2))
+            self.config_path.write_text(json.dumps({"sensor_ip": "", "aria_ip": "", "duration": 0}, indent=2))
         try:
-            with open(config_path, 'r') as f:
+            with open(self.config_path, 'r') as f:
                 self.cfg = json.load(f)
         except Exception as e:
             print(f"Failed to load config: {e}")
@@ -81,20 +82,19 @@ class Bot():
             await self.edit_config(update, context)
 
     async def edit_config(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        config_path = Path(__file__).parent / 'config.json'
-        if not config_path.exists():
+        if not self.config_path.exists():
             # create default config if missing
-            config_path.write_text(json.dumps({"sensor_ip": "", "aria_ip": "", "duration": 0}, indent=2))
+            self.config_path.write_text(json.dumps({"sensor_ip": "", "aria_ip": "", "duration": 0}, indent=2))
 
-        chat_id = update.effective_chat.id
+        self.chat_id = update.effective_chat.id
 
         # load config
         try:
-            with open(config_path, 'r') as f:
+            with open(self.config_path, 'r') as f:
                 self.cfg = json.load(f)
         except Exception as e:
-            await context.bot.send_message(chat_id=chat_id, text=f"Failed to load config: {e}")
-            await context.bot.send_message(chat_id=chat_id, text='Returning to main menu.', reply_markup=self.main_reply_markup)
+            await context.bot.send_message(chat_id=self.chat_id, text=f"Failed to load config: {e}")
+            await context.bot.send_message(chat_id=self.chat_id, text='Returning to main menu.', reply_markup=self.main_reply_markup)
             return
 
         # show current config and present choices
@@ -111,13 +111,16 @@ class Bot():
             [InlineKeyboardButton("duration", callback_data='cfg_duration'),
                 InlineKeyboardButton("cancel", callback_data='cfg_cancel')]
         ]
-        await context.bot.send_message(chat_id=chat_id, text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+        await context.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=InlineKeyboardMarkup(keyboard))
 
         # handler references so we can remove them later
-        self.choice_handler = None
-        self.value_handler = None
 
-        async def handle_choice(inner_update: Update, inner_context: ContextTypes.DEFAULT_TYPE):
+        
+        self.choice_handler = CallbackQueryHandler(self.handle_choice, pattern='^cfg_')
+        self.application.add_handler(self.choice_handler)
+        self.application.remove_handler(self.main_button_handler)
+
+    async def handle_choice(self, inner_update: Update, inner_context: ContextTypes.DEFAULT_TYPE):
             query = inner_update.callback_query
             await query.answer()
             if query.data == 'cfg_cancel':
@@ -134,8 +137,8 @@ class Bot():
                 'cfg_duration': 'duration'
             }
 
-            field = field_map.get(query.data)
-            if not field:
+            self.cfg_field = field_map.get(query.data)
+            if not self.cfg_field:
                 await query.message.reply_text('Unknown selection.', reply_markup=self.main_reply_markup)
                 if self.choice_handler:
                     self.application.remove_handler(self.choice_handler)
@@ -143,71 +146,70 @@ class Bot():
                 return
 
             # Ask for new value
-            current = self.cfg.get(field, '')
-            if field in ('sensor_ip', 'aria_ip'):
-                prompt = f"Current {field}: {current}\nSend the new IP address (or 'cancel')."
+            current = self.cfg.get(self.cfg_field, '')
+            if self.cfg_field in ('sensor_ip', 'aria_ip'):
+                prompt = f"Current {self.cfg_field}: {current}\nSend the new IP address (or 'cancel')."
             else:
-                prompt = f"Current {field}: {current}\nSend the new duration in seconds (positive number) (or 'cancel')."
-
+                prompt = f"Current {self.cfg_field}: {current}\nSend the new duration in seconds (positive number) (or 'cancel')."
             await query.message.reply_text(prompt)
 
-            async def handle_value(msg_update: Update, msg_context: ContextTypes.DEFAULT_TYPE):
-                text = msg_update.message.text.strip()
-                if text.lower() == 'cancel':
-                    await msg_update.message.reply_text('Edit cancelled.', reply_markup=self.main_reply_markup)
-                    # cleanup
-                    if self.value_handler:
-                        self.application.remove_handler(self.value_handler)
-                    if self.choice_handler:
-                        self.application.remove_handler(self.choice_handler)
-                    self.application.add_handler(self.main_button_handler)
-                    return
-                    return
-
-                # validate
-                if field in ('sensor_ip', 'aria_ip'):
-                    try:
-                        ipaddress.ip_address(text)
-                    except Exception:
-                        await msg_update.message.reply_text('Invalid IP address. Please send a valid IP or "cancel".')
-                        return
-                    self.cfg[field] = text
-                else:  # duration
-                    try:
-                        val = float(text)
-                        if val <= 0:
-                            raise ValueError()
-                    except Exception:
-                        await msg_update.message.reply_text('Duration must be a positive number. Send a valid number or "cancel".')
-                        return
-                    self.cfg[field] = val
-                # write back to config
-                try:
-                    with open(config_path, 'w') as f:
-                        json.dump(self.cfg, f, indent=2)
-                except Exception as e:
-                    await msg_update.message.reply_text(f"Failed to write config: {e}", reply_markup=self.main_reply_markup)
-                else:
-                    await msg_update.message.reply_text(f"{field} updated successfully.", reply_markup=self.main_reply_markup)
-
-                # cleanup handlers
-                if self.value_handler:
-                    self.application.remove_handler(self.value_handler)
-                if self.choice_handler:
-                    self.application.remove_handler(self.choice_handler)
-                self.application.add_handler(self.main_button_handler)
-
             # add the message handler
-            self.value_handler = MessageHandler(filters.TEXT & filters.Chat(chat_id), handle_value)
+            self.value_handler = MessageHandler(filters.TEXT & filters.Chat(self.chat_id), self.handle_value)
             self.application.add_handler(self.value_handler)
 
             # remove the choice handler to avoid double-handling
             if self.choice_handler:
                 self.application.remove_handler(self.choice_handler)
+
+
+    async def handle_value(self, msg_update: Update, msg_context: ContextTypes.DEFAULT_TYPE):
+        text = msg_update.message.text.strip()
+        if text.lower() == 'cancel':
+            await msg_update.message.reply_text('Edit cancelled.', reply_markup=self.main_reply_markup)
+            # cleanup
+            if self.value_handler:
+                self.application.remove_handler(self.value_handler)
+            if self.choice_handler:
+                self.application.remove_handler(self.choice_handler)
+            self.application.add_handler(self.main_button_handler)
+            return
         
-        self.choice_handler = CallbackQueryHandler(handle_choice, pattern='^cfg_')
-        self.application.add_handler(self.choice_handler)
-        self.application.remove_handler(self.main_button_handler)
+        
+        # validate
+        if self.cfg_field in ('sensor_ip', 'aria_ip'):
+            try:
+                ipaddress.ip_address(text)
+            except Exception:
+                await msg_update.message.reply_text('Invalid IP address. Please send a valid IP or "cancel".')
+                return
+            self.cfg[self.cfg_field] = text
+        else:  # duration
+            try:
+                val = float(text)
+                if val <= 0:
+                    raise ValueError()
+            except Exception:
+                await msg_update.message.reply_text('Duration must be a positive number. Send a valid number or "cancel".')
+                return
+            self.cfg[self.cfg_field] = val
+        # write back to config
+        try:
+            with open(self.config_path, 'w') as f:
+                json.dump(self.cfg, f, indent=2)
+        except Exception as e:
+            await msg_update.message.reply_text(f"Failed to write config: {e}", reply_markup=self.main_reply_markup)
+        else:
+            await msg_update.message.reply_text(f"{self.cfg_field} updated successfully.", reply_markup=self.main_reply_markup)
+
+        # cleanup handlers
+        if self.value_handler:
+            self.application.remove_handler(self.value_handler)
+        if self.choice_handler:
+            self.application.remove_handler(self.choice_handler)
+        self.application.add_handler(self.main_button_handler)
+
+
+        
             
 if __name__ == '__main__':
     with open('/home/reggev/token.txt', 'r') as file: token = file.read().strip()
