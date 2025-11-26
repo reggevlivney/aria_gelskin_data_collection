@@ -4,28 +4,27 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
 import main
 import main_sensor_only as main_s
-
-# logging.basicConfig(
-#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-#     level=logging.INFO
-# )
+import main_sensor_test_comm as main_test
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="GelSkin Data Collection Bot is online!")
-    keyboard = [InlineKeyboardButton("Full Recording", callback_data='start_full_recording'), InlineKeyboardButton("Sensor Recording", callback_data='start_sensor_recording')]
-    reply_markup = InlineKeyboardMarkup([keyboard])
+    keyboard = [[InlineKeyboardButton("Full Recording", callback_data='start_full_recording'), InlineKeyboardButton("Sensor Recording", callback_data='start_sensor_recording')]
+                ,[InlineKeyboardButton("Test Sensor Communication", callback_data='test_sensor_communication')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     # await context.bot.send_message(chat_id=update.effective_chat.id, text="Press the button to start recording.", reply_markup=reply_markup)
     await update.message.reply_text('Welcome to the GelSkin Data Collection Bot!',reply_markup=reply_markup)
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    keyboard = [InlineKeyboardButton("Full Recording", callback_data='start_full_recording'), InlineKeyboardButton("Sensor Recording", callback_data='start_sensor_recording')]
-    reply_markup = InlineKeyboardMarkup([keyboard])
+    keyboard = [[InlineKeyboardButton("Full Recording", callback_data='start_full_recording'), InlineKeyboardButton("Sensor Recording", callback_data='start_sensor_recording')]
+                ,[InlineKeyboardButton("Test Sensor Communication", callback_data='test_sensor_communication')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
     handlers = {
         'start_full_recording': (main.main, 'full recording'),
         'start_sensor_recording': (main_s.main, 'sensor recording'),
+        'test_sensor_communication': (main_test.main, 'sensor communication test'),
     }
 
     cmd = query.data
