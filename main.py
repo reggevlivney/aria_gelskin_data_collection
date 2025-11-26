@@ -26,15 +26,8 @@ async def main(context=None,chat_id=None):
     args = parser.parse_args()
 
     sensor_ip = args.sensor_ip
-    # try:
-    #     aria_ip = utils.get_aria_ip(sensor_ip)
-    #     if aria_ip is None:
-    #         aria_ip = args.aria_ip
-    # except:
-    #     await out.print("[MAIN] Glasses might be disconnected from Jetson. Using default Aria IP.")
-    #     aria_ip = args.aria_ip
     try:
-        await out.print(f"[MAIN] Preparing Sensor...")
+        await out.print(f"[MAIN] Connecting to Sensor...")
         sensor = utils.SensorSocket(host=sensor_ip, port=12345)
         sensor.connect()
         await out.print(f"[MAIN] Getting Aria IP...")
@@ -43,6 +36,7 @@ async def main(context=None,chat_id=None):
         await out.print(f"[MAIN] Make sure Aria is in the same network as this computer and the sensor")
         await out.print(f"[MAIN] Preparing Aria...")
         device, device_client = utils.prepare_aria_video(device_ip=aria_ip,profile='profile5')
+        await out.print(f"[MAIN] Preparing Sensor...")
         sensor.prepare()
         await out.print(f"[MAIN] Starting recording for {args.length} seconds...")
         aria_start_time = utils.start_aria_recording(device) - 0.2
@@ -66,15 +60,7 @@ async def main(context=None,chat_id=None):
         sensor.close()
         await out.print(f"[MAIN] Disconnecting from Aria...")
         utils.disconnect_aria(device_client,device)
-        # await out.print(f"[MAIN] Pulling video from Aria...")
-        # aria_video_path = utils.pull_aria_recording(sensor_ip)
         await out.print(f"[MAIN] Converting Aria VRS to MP4...")
-        # VRSToVideo(Path(aria_video_path),
-        #             start_time_unix=sensor_start_time,
-        #               end_time_unix=sensor_end_time,
-        #               unix_time_sample=lab_unix_time_sample,
-        #               aria_unix_time_sample=aria_unix_time_sample,
-        #               up_time_sample=aria_up_time_sample)
         VRSToVideo(Path(aria_video_path),
                     sensor_start_time=sensor_start_time,
                     sensor_end_time=sensor_end_time,
