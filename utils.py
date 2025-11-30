@@ -38,7 +38,7 @@ class SensorSocket:
         return response.decode()
     
     def prepare(self):
-        if self.state != 'CONNECTED':
+        if self.state != 'CONNECTED' and self.state != 'STOPPED':
             raise Exception("Socket not connected")
         self.socket.sendall(b'PREPARE')
         response = self.receive(1024)
@@ -59,7 +59,7 @@ class SensorSocket:
             raise Exception("Failed to start sensor recording")
 
     def stop(self):
-        if self.state != 'RECORDING':
+        if self.state != 'RECORDING' and self.state != 'PREPARED':
             raise Exception("Socket not recording")
         self.socket.sendall(b'STOP')
         response = self.receive(1024)
